@@ -1,0 +1,35 @@
+{
+  "name": "admin",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "nuxt",
+    "build": "nuxt build",
+    "start": "nuxt start",
+    "export": "nuxt export",
+    "serve": "nuxt serve"
+  },
+  "dependencies": {
+    "@casl/ability": "^4.1.5",
+    "@casl/vue": "^1.1.1",
+    "@nuxtjs/axios": "^5.11.0",
+    "@nuxtjs/moment": "^1.6.1",
+    "cookie-universal-nuxt": "^2.1.4",
+    "nuxt": "^2.13.0",
+    "nuxt-webfontloader": "^1.1.0",
+    "swiper": "^6.0.4",
+    "vee-validate": "^3.4.3",
+    "vue-awesome-swiper": "^4.1.1",
+    "vue-html2pdf": "^1.8.0",
+    "vue-wysiwyg": "^1.7.2",
+    "vuetify-dialog": "^2.0.8",
+    "vuetify-mask": "^1.0.0",
+    "vuex-persistedstate": "^3.1.0"
+  },
+  "devDependencies": {
+    "@nuxtjs/vuetify": "^1.11.2",
+    "eslint-config-prettier": "^6.11.0",
+    "eslint-plugin-prettier": "^3.1.4",
+    "prettier": "^2.0.5"
+  }
+}
