@@ -1,4 +1,4 @@
-module alfresco/doc-digitizer/doc-uploader
+module github.com/syahriarreza/alfresco-doc-digitizer
 
 go 1.14
 

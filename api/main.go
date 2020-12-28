@@ -8,6 +8,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/makiuchi-d/gozxing"
 	"github.com/makiuchi-d/gozxing/qrcode"
+	"github.com/syahriarreza/alfresco-doc-digitizer/engine"
 )
 
 func main() {
