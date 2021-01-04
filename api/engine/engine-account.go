@@ -35,3 +35,16 @@ func (eg *AccountEngine) Login(c *gin.Context) {
 	SetResultOK(c, toolkit.M{"fieldA": nameGet, "fieldB": 349})
 	return
 }
+
+// Extract Extract
+func (eg *AccountEngine) Extract(c *gin.Context) {
+	res, e := ExtractPDF("test pdf.pdf")
+	if e != nil {
+		SetResultError(c, e)
+		return
+	}
+	fmt.Println(res)
+
+	SetResultOK(c, nil)
+	return
+}

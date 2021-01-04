@@ -1,9 +1,8 @@
-package model
+package engine
 
 import (
 	"time"
 
-	"github.com/syahriarreza/alfresco-doc-digitizer/api/helper"
 	"gorm.io/gorm"
 )
 
@@ -17,7 +16,7 @@ type Pages struct {
 // BeforeCreate BeforeCreate
 func (m *Pages) BeforeCreate(tx *gorm.DB) error {
 	if m.ID == "" {
-		m.ID = helper.MakeID("", 16)
+		m.ID = MakeID("", 16)
 	}
 	if m.CreatedAt.IsZero() {
 		m.CreatedAt = time.Now()

@@ -36,6 +36,7 @@ func main() {
 	ae := engine.AccountEngine{}
 	router.GET("/account", ae.Register)
 	router.GET("/account/login", ae.Login)
+	router.GET("/extract", ae.Extract)
 	router.Run(":8080")
 }
 

@@ -8,6 +8,7 @@ require (
 	github.com/gin-gonic/gin v1.6.3
 	github.com/jasonlvhit/gocron v0.0.1
 	github.com/makiuchi-d/gozxing v0.0.0-20200903113411-25f730ed83da
+	github.com/novalagung/gubrak v1.0.0
 	github.com/panjf2000/ants v1.3.0
 	github.com/spf13/viper v1.7.1
 	golang.org/x/xerrors v0.0.0-20200804184101-5ec99f83aff1 // indirect

@@ -1,4 +1,4 @@
-package model
+package engine
 
 import (
 	"fmt"
@@ -40,6 +40,7 @@ func (m *SchedulerInfo) GetIsRunning(db *gorm.DB) (bool, error) {
 // UpdateIsRunning update status is_running
 func (m *SchedulerInfo) UpdateIsRunning(db *gorm.DB, isRunning bool) error {
 	if res := db.Model(m).Where("id = ?", "1").Update("is_running", isRunning); res.Error != nil {
+		//TODO: logging for error
 		return fmt.Errorf("error update scheduler is_running : %s", res.Error.Error())
 	}
 
