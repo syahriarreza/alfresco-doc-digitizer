@@ -7,6 +7,7 @@ require (
 	github.com/gen2brain/go-fitz v0.0.0-20201207194431-072519bd9a7e
 	github.com/gin-gonic/gin v1.6.3
 	github.com/jasonlvhit/gocron v0.0.1
+	github.com/jung-kurt/gofpdf v1.16.2
 	github.com/makiuchi-d/gozxing v0.0.0-20200903113411-25f730ed83da
 	github.com/novalagung/gubrak v1.0.0
 	github.com/panjf2000/ants v1.3.0

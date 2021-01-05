@@ -1,8 +1,14 @@
 package engine
 
 import (
+	"fmt"
+	"image/jpeg"
+	"os"
+	"path/filepath"
 	"time"
 
+	"github.com/jung-kurt/gofpdf"
+	"github.com/spf13/viper"
 	"gorm.io/gorm"
 )
 
@@ -86,27 +92,56 @@ func (m *Jobs) runScan(db *gorm.DB) error {
 	}
 
 	// create multiple jobs based on pdf extracts
+	newJobs := []Jobs{}
 	for _, pe := range pdfExts {
 		nj := new(Jobs)
+		nj.Base.ID = MakeID("", 16)
 		nj.QrcodeID = pe.QRCode.ID
 		nj.AlfrescoFilename = pe.QRCode.AlfrescoDefaultFilename
 
-		if nj.QrcodeID == "" {
+		switch true {
+		case nj.QrcodeID == "":
 			//TODO: handle file kalo ga ada qr code nya
 
-		} else if pe.QRCode.IsReviewNeeded {
+		case pe.QRCode.IsReviewNeeded:
 			nj.PdfFilename = ""
 			nj.Status = JobInReview
-			//TODO: create pages and save image to file
+			for pgI, pg := range pe.Pages {
+				pageFileName := fmt.Sprintf("%s-%s.pdf", MakeID("", 16), FormatNumberDigit((pgI+1), 4))
 
-		} else {
+				// create Pages
+				nPage := new(Pages)
+				nPage.JobID = nj.Base.ID
+				nPage.Filename = pageFileName
+				if res := db.Create(nPage); res.Error != nil {
+					return res.Error
+				}
 
+				// saving image to file in 'process
+				f, e := os.Create(filepath.Join(viper.GetString("folder.process"), pageFileName))
+				if e != nil {
+					f.Close()
+					return fmt.Errorf("error creating file : %s", e.Error())
+				}
+				if e := jpeg.Encode(f, pg, &jpeg.Options{Quality: jpeg.DefaultQuality}); e != nil {
+					f.Close()
+					return fmt.Errorf("error encoding : %s", e.Error())
+				}
+				f.Close()
+			}
+
+		default:
 			nj.Status = JobUploading
 			nj.PdfFilename = MakeID("", 16) + ".pdf"
 			//TODO: create pdf file (nj.PdfFilename) in 'upload' folder from images (pe.Pages)
+			gofpdf.New("P", "mm", "A4", "")
 		}
 
-		//TODO: save new job
+		newJobs = append(newJobs, *nj)
+	}
+
+	if res := db.Create(&newJobs); res.Error != nil {
+		return res.Error
 	}
 
 	return nil
