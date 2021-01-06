@@ -3,6 +3,8 @@ package engine
 import (
 	"fmt"
 	"image"
+	"image/jpeg"
+	"os"
 	"path/filepath"
 
 	"github.com/gen2brain/go-fitz"
@@ -91,4 +93,19 @@ func ExtractPDF(filename string) ([]PDFExtract, error) {
 	}
 
 	return allPDFs, nil
+}
+
+// SaveImage SaveImage
+func SaveImage(img image.Image, filepath string) error {
+	f, e := os.Create(filepath)
+	if e != nil {
+		return fmt.Errorf("error creating file: '%s' : %s", filepath, e.Error())
+	}
+	defer f.Close()
+
+	if e := jpeg.Encode(f, img, &jpeg.Options{Quality: jpeg.DefaultQuality}); e != nil {
+		return fmt.Errorf("error encoding img: '%s' : %s", filepath, e.Error())
+	}
+
+	return nil
 }

@@ -2,7 +2,6 @@ package engine
 
 import (
 	"fmt"
-	"image/jpeg"
 	"os"
 	"path/filepath"
 	"time"
@@ -109,7 +108,7 @@ func (m *Jobs) runScan(db *gorm.DB) error {
 			for pgI, pg := range pe.Pages {
 				pageFileName := fmt.Sprintf("%s-%s.pdf", MakeID("", 16), FormatNumberDigit((pgI+1), 4))
 
-				// create Pages
+				// create Pages & save image
 				nPage := new(Pages)
 				nPage.JobID = nj.Base.ID
 				nPage.Filename = pageFileName
@@ -117,24 +116,38 @@ func (m *Jobs) runScan(db *gorm.DB) error {
 					return res.Error
 				}
 
-				// saving image to file in 'process
-				f, e := os.Create(filepath.Join(viper.GetString("folder.process"), pageFileName))
-				if e != nil {
-					f.Close()
-					return fmt.Errorf("error creating file : %s", e.Error())
+				if e := SaveImage(pg, filepath.Join(viper.GetString("folder.process"), pageFileName)); e != nil {
+					return e
 				}
-				if e := jpeg.Encode(f, pg, &jpeg.Options{Quality: jpeg.DefaultQuality}); e != nil {
-					f.Close()
-					return fmt.Errorf("error encoding : %s", e.Error())
-				}
-				f.Close()
 			}
 
 		default:
 			nj.Status = JobUploading
 			nj.PdfFilename = MakeID("", 16) + ".pdf"
-			//TODO: create pdf file (nj.PdfFilename) in 'upload' folder from images (pe.Pages)
-			gofpdf.New("P", "mm", "A4", "")
+
+			// create pdf & save temp image
+			pdf := gofpdf.New("P", "mm", "A4", "")
+			imgFilePaths := []string{}
+			for pgI, pg := range pe.Pages {
+				pageFileName := fmt.Sprintf("%s-%s.pdf", MakeID("", 16), FormatNumberDigit((pgI+1), 4))
+				imgFilePath := filepath.Join(viper.GetString("folder.process"), pageFileName)
+				if e := SaveImage(pg, imgFilePath); e != nil {
+					return e
+				}
+				imgFilePaths = append(imgFilePaths, imgFilePath)
+
+				pdf.AddPage()
+				pdf.SetFont("Arial", "B", 16)
+				pdf.Image(imgFilePath, 0, 0, 0, 0, false, "", 0, "")
+			}
+
+			pdfFilePath := filepath.Join(viper.GetString("folder.upload"), nj.PdfFilename)
+			if e := pdf.OutputFileAndClose(pdfFilePath); e != nil {
+				return e
+			}
+			for _, imgfp := range imgFilePaths {
+				os.Remove(imgfp)
+			}
 		}
 
 		newJobs = append(newJobs, *nj)
