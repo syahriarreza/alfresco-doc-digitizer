@@ -26,6 +26,7 @@ func InitDB() error {
 		viper.GetString("database.port"),
 		viper.GetString("database.name"),
 	)
+	fmt.Println("[INIT] DB:", dsn)
 	db, e := gorm.Open(mysql.Open(dsn), &gorm.Config{})
 	if e != nil {
 		return e
@@ -50,6 +51,17 @@ func InitDB() error {
 	scInfo := SchedulerInfo{}
 	if IsNotFound(db.First(&scInfo, "1")) {
 		db.Create(&SchedulerInfo{})
+	}
+
+	if CountRecord(&Qrcodes{}) == 0 {
+		qr := new(Qrcodes)
+		qr.ID = "001"
+		qr.AlfrescoPath = "/001/001"
+		db.Create(qr)
+		qr = new(Qrcodes)
+		qr.ID = "002"
+		qr.AlfrescoPath = "/002/002"
+		db.Create(qr)
 	}
 
 	return nil
@@ -78,4 +90,26 @@ func MakeID(prefix string, l int) string {
 // IsNotFound IsNotFound
 func IsNotFound(res *gorm.DB) bool {
 	return res.Error != nil && errors.Is(res.Error, gorm.ErrRecordNotFound)
+}
+
+// CountRecord count based on id [SELECT COUNT(id)]
+func CountRecord(modelPtr interface{}, where ...string) int {
+	to := struct {
+		Total int `json:"total"`
+	}{}
+
+	tx := DB.Model(modelPtr).Select("COUNT(id) AS total")
+
+	if len(where) >= 2 {
+		whereQry, whereArgs := where[0], where[1:]
+		tx = tx.Where(whereQry, toolkit.ToInterfaceArray(whereArgs)...)
+	}
+
+	tx = tx.Find(&to)
+	if tx.Error != nil {
+		fmt.Println(tx.Error.Error())
+		return 0
+	}
+
+	return to.Total
 }
