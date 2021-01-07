@@ -12,3 +12,5 @@ folder:
 scheduler:
   every_x_minute: 1
   poolsize: 20
+alfresco:
+  default_path: CompanyHome/Guest Home

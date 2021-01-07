@@ -38,11 +38,17 @@ func main() {
 	router.GET("/account/login", ae.Login)
 	router.GET("/extract", ae.Extract)
 	router.Run(":8080")
+
+	fmt.Println("### WILL START CRON")
+	<-gocron.Start()
 }
 
 func readConfig() error {
 	wd, _ := os.Getwd()
-	viper.SetConfigName("app")
+	configName := "app"
+	fmt.Println("Config:", filepath.Join(wd, "config", configName))
+
+	viper.SetConfigName(configName)
 	viper.AddConfigPath(filepath.Join(wd, "config"))
 	viper.AddConfigPath(".")
 	return viper.ReadInConfig()
