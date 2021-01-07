@@ -31,6 +31,8 @@ func main() {
 	gocron.Every(viper.GetUint64("scheduler.every_x_minute")).Minute().
 		Do(new(engine.SchedulerEngine).ScanDropbox)
 
+	// go toolkit.RunCommand("go", "run", filepath.Join("scheduler", "myvent-scheduler.go"))
+
 	// router
 	router := gin.Default()
 	ae := engine.AccountEngine{}
