@@ -98,11 +98,8 @@ func (m *Jobs) runScan(db *gorm.DB) error {
 		nj.QrcodeID = pe.QRCode.ID
 		nj.AlfrescoFilename = pe.QRCode.AlfrescoDefaultFilename
 
-		switch true {
-		case nj.QrcodeID == "":
-			//TODO: handle file kalo ga ada qr code nya
-
-		case pe.QRCode.IsReviewNeeded:
+		if pe.QRCode.IsReviewNeeded {
+			// Review
 			nj.PdfFilename = ""
 			nj.Status = JobInReview
 			for pgI, pg := range pe.Pages {
@@ -120,10 +117,16 @@ func (m *Jobs) runScan(db *gorm.DB) error {
 					return e
 				}
 			}
-
-		default:
+		} else {
+			// Direct Upload
 			nj.Status = JobUploading
 			nj.PdfFilename = MakeID("", 16) + ".pdf"
+
+			//TODO: set metadata based on QRCode (pe.QRCode)
+
+			if nj.QrcodeID == "" {
+				//TODO: set based on app.yml
+			}
 
 			// create pdf & save temp image
 			pdf := gofpdf.New("P", "mm", "A4", "")

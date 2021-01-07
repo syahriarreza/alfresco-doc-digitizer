@@ -8,6 +8,7 @@ import (
 	"path/filepath"
 
 	"github.com/gen2brain/go-fitz"
+	"github.com/jasonlvhit/gocron"
 	"github.com/makiuchi-d/gozxing"
 	"github.com/makiuchi-d/gozxing/qrcode"
 	"github.com/panjf2000/ants"
@@ -43,7 +44,45 @@ func (eg *SchedulerEngine) InitWorkerPool() error {
 }
 
 // ScanDropbox regular func for cron
-func (eg *SchedulerEngine) ScanDropbox() error {
+func (eg *SchedulerEngine) ScanDropbox() {
+	if e := scanDropBox(); e != nil {
+		fmt.Printf("[ERROR] %s\n", e.Error())
+	}
+}
+
+// ReadQRCodeInPDF ReadQRCodeInPDF
+func (eg *SchedulerEngine) ReadQRCodeInPDF() error {
+	qrDecoder := qrcode.NewQRCodeReader()
+	doc, e := fitz.New(viper.GetString("folder.dropbox"))
+	if e != nil {
+		panic(e)
+	}
+	defer doc.Close()
+
+	// Extract pages as images
+	for n := 0; n < doc.NumPage(); n++ {
+		img, e := doc.Image(n)
+		if e != nil {
+			return fmt.Errorf("get image: %s", e.Error())
+		}
+
+		bmp, e := gozxing.NewBinaryBitmapFromImage(img)
+		if e != nil {
+			return fmt.Errorf("create new binary bitmap: %s", e.Error())
+		}
+
+		res, _ := qrDecoder.Decode(bmp, nil)
+		if res == nil {
+			fmt.Printf("Page #%03d: QR Code not found\n", n+1)
+		} else {
+			fmt.Printf("Page #%03d: %s\n", n+1, res.String())
+		}
+	}
+
+	return nil
+}
+
+func scanDropBox() error {
 	scInfo := new(SchedulerInfo)
 
 	//check is_running
@@ -106,37 +145,7 @@ func (eg *SchedulerEngine) ScanDropbox() error {
 		}
 	}
 
-	return nil
-}
-
-// ReadQRCodeInPDF ReadQRCodeInPDF
-func (eg *SchedulerEngine) ReadQRCodeInPDF() error {
-	qrDecoder := qrcode.NewQRCodeReader()
-	doc, e := fitz.New(viper.GetString("folder.dropbox"))
-	if e != nil {
-		panic(e)
-	}
-	defer doc.Close()
-
-	// Extract pages as images
-	for n := 0; n < doc.NumPage(); n++ {
-		img, e := doc.Image(n)
-		if e != nil {
-			return fmt.Errorf("get image: %s", e.Error())
-		}
-
-		bmp, e := gozxing.NewBinaryBitmapFromImage(img)
-		if e != nil {
-			return fmt.Errorf("create new binary bitmap: %s", e.Error())
-		}
-
-		res, _ := qrDecoder.Decode(bmp, nil)
-		if res == nil {
-			fmt.Printf("Page #%03d: QR Code not found\n", n+1)
-		} else {
-			fmt.Printf("Page #%03d: %s\n", n+1, res.String())
-		}
-	}
-
+	_, time := gocron.NextRun()
+	fmt.Println("CRON | Next Run:", time)
 	return nil
 }
