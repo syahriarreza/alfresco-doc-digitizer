@@ -53,6 +53,20 @@ func (m *Jobs) BeforeCreate(tx *gorm.DB) error {
 	return nil
 }
 
+// BeforeDelete hook
+func (m *Jobs) BeforeDelete(tx *gorm.DB) error {
+	pdfFolder := ""
+	switch m.Status {
+	case JobScanning:
+		pdfFolder = viper.GetString("folder.scan")
+	case JobUploading:
+		pdfFolder = viper.GetString("folder.upload")
+	}
+
+	os.Remove(filepath.Join(pdfFolder, m.PdfFilename))
+	return nil
+}
+
 // Run run job
 func (m *Jobs) Run(db *gorm.DB) error {
 	fmt.Printf("running job id: %s\n", m.ID)
@@ -65,7 +79,6 @@ func (m *Jobs) Run(db *gorm.DB) error {
 			db.Save(m)
 			return e
 		}
-		os.Remove(filepath.Join(viper.GetString("folder.scan"), m.PdfFilename))
 		if res := db.Delete(m); res.Error != nil {
 			fmt.Println("ERROR | ", res.Error.Error())
 			return res.Error
