@@ -55,23 +55,31 @@ func (m *Jobs) BeforeCreate(tx *gorm.DB) error {
 
 // Run run job
 func (m *Jobs) Run(db *gorm.DB) error {
+	fmt.Printf("running job id: %s\n", m.ID)
+
 	switch true {
 	case m.Status == JobPending || m.Status == JobScanning:
 		if e := m.runScan(db); e != nil {
+			fmt.Println("ERROR | ", e.Error())
 			m.IsInQueue = false
 			db.Save(m)
 			return e
 		}
+		os.Remove(filepath.Join(viper.GetString("folder.scan"), m.PdfFilename))
 		if res := db.Delete(m); res.Error != nil {
+			fmt.Println("ERROR | ", res.Error.Error())
 			return res.Error
 		}
 
 	case m.Status == JobUploading:
 		if e := m.runUpload(db); e != nil {
+			fmt.Println("ERROR | ", e.Error())
 			return e
 		}
+		// TODO: delete job dan file pdf setelah pdf sukses ke upload ke alfresco
 		m.IsInQueue = false
 		if res := db.Save(m); res.Error != nil {
+			fmt.Println("ERROR | ", res.Error.Error())
 			return res.Error
 		}
 	}
@@ -103,7 +111,7 @@ func (m *Jobs) runScan(db *gorm.DB) error {
 			nj.PdfFilename = ""
 			nj.Status = JobInReview
 			for pgI, pg := range pe.Pages {
-				pageFileName := fmt.Sprintf("%s-%s.pdf", MakeID("", 16), FormatNumberDigit((pgI+1), 4))
+				pageFileName := fmt.Sprintf("REV-%s-%s.pdf", nj.ID, FormatNumberDigit((pgI+1), 4))
 
 				// create Pages & save image
 				nPage := new(Pages)
@@ -120,19 +128,19 @@ func (m *Jobs) runScan(db *gorm.DB) error {
 		} else {
 			// Direct Upload
 			nj.Status = JobUploading
-			nj.PdfFilename = MakeID("", 16) + ".pdf"
+			nj.PdfFilename = fmt.Sprintf("UP-%s.pdf", nj.ID)
 
 			//TODO: set metadata based on QRCode (pe.QRCode)
 
 			if nj.QrcodeID == "" {
-				//TODO: set based on app.yml
+				//TODO: set based on app.yml default setting, upload to user_home alfresco
 			}
 
 			// create pdf & save temp image
 			pdf := gofpdf.New("P", "mm", "A4", "")
 			imgFilePaths := []string{}
 			for pgI, pg := range pe.Pages {
-				pageFileName := fmt.Sprintf("%s-%s.pdf", MakeID("", 16), FormatNumberDigit((pgI+1), 4))
+				pageFileName := fmt.Sprintf("PG-%s-%s.png", nj.ID, FormatNumberDigit((pgI+1), 4))
 				imgFilePath := filepath.Join(viper.GetString("folder.process"), pageFileName)
 				if e := SaveImage(pg, imgFilePath); e != nil {
 					return e

@@ -3,7 +3,7 @@ package engine
 import (
 	"fmt"
 	"image"
-	"image/jpeg"
+	"image/png"
 	"os"
 	"path/filepath"
 
@@ -103,7 +103,8 @@ func SaveImage(img image.Image, filepath string) error {
 	}
 	defer f.Close()
 
-	if e := jpeg.Encode(f, img, &jpeg.Options{Quality: jpeg.DefaultQuality}); e != nil {
+	// if e := jpeg.Encode(f, img, &jpeg.Options{Quality: jpeg.DefaultQuality}); e != nil {
+	if e := png.Encode(f, img); e != nil {
 		return fmt.Errorf("error encoding img: '%s' : %s", filepath, e.Error())
 	}
 

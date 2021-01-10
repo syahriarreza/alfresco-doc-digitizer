@@ -7,10 +7,7 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/gen2brain/go-fitz"
-	"github.com/jasonlvhit/gocron"
-	"github.com/makiuchi-d/gozxing"
-	"github.com/makiuchi-d/gozxing/qrcode"
+	"github.com/go-co-op/gocron"
 	"github.com/panjf2000/ants"
 	"github.com/spf13/viper"
 	"gorm.io/gorm"
@@ -23,6 +20,14 @@ var (
 
 // SchedulerEngine engine
 type SchedulerEngine struct {
+	schedule *gocron.Scheduler
+}
+
+// NewSchedulerEngine create scheduler engine instance
+func NewSchedulerEngine(schedule *gocron.Scheduler) *SchedulerEngine {
+	se := new(SchedulerEngine)
+	se.schedule = schedule
+	return se
 }
 
 // InitWorkerPool init ants pool
@@ -45,44 +50,12 @@ func (eg *SchedulerEngine) InitWorkerPool() error {
 
 // ScanDropbox regular func for cron
 func (eg *SchedulerEngine) ScanDropbox() {
-	if e := scanDropBox(); e != nil {
+	if e := eg.scanDropBox(); e != nil {
 		fmt.Printf("[ERROR] %s\n", e.Error())
 	}
 }
 
-// ReadQRCodeInPDF ReadQRCodeInPDF
-func (eg *SchedulerEngine) ReadQRCodeInPDF() error {
-	qrDecoder := qrcode.NewQRCodeReader()
-	doc, e := fitz.New(viper.GetString("folder.dropbox"))
-	if e != nil {
-		panic(e)
-	}
-	defer doc.Close()
-
-	// Extract pages as images
-	for n := 0; n < doc.NumPage(); n++ {
-		img, e := doc.Image(n)
-		if e != nil {
-			return fmt.Errorf("get image: %s", e.Error())
-		}
-
-		bmp, e := gozxing.NewBinaryBitmapFromImage(img)
-		if e != nil {
-			return fmt.Errorf("create new binary bitmap: %s", e.Error())
-		}
-
-		res, _ := qrDecoder.Decode(bmp, nil)
-		if res == nil {
-			fmt.Printf("Page #%03d: QR Code not found\n", n+1)
-		} else {
-			fmt.Printf("Page #%03d: %s\n", n+1, res.String())
-		}
-	}
-
-	return nil
-}
-
-func scanDropBox() error {
+func (eg *SchedulerEngine) scanDropBox() error {
 	scInfo := new(SchedulerInfo)
 
 	//check is_running
@@ -107,13 +80,13 @@ func scanDropBox() error {
 	}
 
 	// scan all files
-	for i, f := range fs {
+	for _, f := range fs {
 		//TODO: checking for active file
-		if isPDF, _ := filepath.Match("*.pdf", f.Name()); isPDF && !f.IsDir() {
-			fmt.Println(fmt.Sprintf("File #%d: %s", i+1, f.Name()))
 
-			// move & rename pdf
-			newFilename := MakeID("", 12) + ".pdf"
+		if isPDF, _ := filepath.Match("*.pdf", f.Name()); isPDF && !f.IsDir() {
+			newJobID := MakeID("", 16)
+			newFilename := fmt.Sprintf("SC-%s.pdf", newJobID)
+
 			if e := os.Rename(
 				filepath.Join(viper.GetString("folder.dropbox"), f.Name()),
 				filepath.Join(viper.GetString("folder.scan"), newFilename),
@@ -121,15 +94,17 @@ func scanDropBox() error {
 				return fmt.Errorf("error move and rename file '%s' : %s", f.Name(), e.Error())
 			}
 
-			DB.Create(&Jobs{
+			newJob := Jobs{
 				PdfFilename: newFilename,
 				Status:      JobPending,
 				IsInQueue:   false,
-			})
+			}
+			newJob.ID = newJobID
+			DB.Create(&newJob)
 		}
 	}
 
-	// enqueue pending jobs
+	// enqueue pending jobs (jobs thats just created & existing jobs which has status IsInQueue: false)
 	pendingJobs := []Jobs{}
 	if res := DB.Where("is_in_queue = ? AND status != ?", false, JobInReview).Find(&pendingJobs); res.Error != nil && !errors.Is(res.Error, gorm.ErrRecordNotFound) {
 		return fmt.Errorf("error get pending jobs : %s", res.Error.Error())
@@ -140,12 +115,13 @@ func scanDropBox() error {
 		if res := DB.Save(&job); res.Error != nil {
 			return res.Error
 		}
-		if e := Pool.Invoke(job); e != nil {
+		if e := Pool.Invoke(&job); e != nil {
 			return e
 		}
 	}
 
-	_, time := gocron.NextRun()
-	fmt.Println("CRON | Next Run:", time)
+	_, time := eg.schedule.NextRun()
+	fmt.Println("CRON | Finished, Next Run:", time)
+	//TODO: next run nya ga bener..
 	return nil
 }

@@ -1,3 +1,5 @@
+application:
+  port: 8080
 database:
   host: 127.0.0.1
   port: 3306
@@ -10,7 +12,7 @@ folder:
   process: D:\GO\src\github.com\syahriarreza\alfresco-doc-digitizer\.ignored\pdf\process
   upload: D:\GO\src\github.com\syahriarreza\alfresco-doc-digitizer\.ignored\pdf\upload
 scheduler:
-  every_x_minute: 1
+  every_x_minute: 5
   poolsize: 20
 alfresco:
   default_path: CompanyHome/Guest Home

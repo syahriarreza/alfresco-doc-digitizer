@@ -69,9 +69,9 @@ func InitDB() error {
 
 // MakeID MakeID
 func MakeID(prefix string, l int) string {
-	if l < 20 {
-		l = 20
-	}
+	// if l < 20 {
+	// 	l = 20
+	// }
 	p1 := toolkit.Date2String(time.Now(), "YYMMddHHmmss")
 	lp2 := l - len(prefix) - len(p1)
 	if lp2 <= 0 {
@@ -80,7 +80,7 @@ func MakeID(prefix string, l int) string {
 		}
 		return fmt.Sprintf("%s%s", prefix, p1)
 	}
-	p2 := toolkit.GenerateRandomString("ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789", lp2)
+	p2 := toolkit.GenerateRandomString("ABCDEFGHIJKLMNOPQRSTUVWXYZ", lp2)
 	if prefix == "" {
 		return fmt.Sprintf("%s%s", p1, p2)
 	}
