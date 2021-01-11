@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!-- Definition of new Model -->
+
+<!-- The important part here is the name - Note: the use of the acc: namespace which is defined further on in the document -->
+<model name="efilling:efillingmodel" xmlns="http://www.alfresco.org/model/dictionary/1.0">
+	
+   <!-- Optional meta-data about the model -->   
+   <description>E-Filling Document Model</description>
+   <author>Prosia</author>
+   <version>2.1</version>
+
+    <!-- Imports are required to allow references to definitions in other models -->   
+   <imports>
+   	  <!-- Import Alfresco Dictionary Definitions -->
+      <import uri="http://www.alfresco.org/model/dictionary/1.0" prefix="d"/>
+      <!-- Import Alfresco Content Domain Model Definitions -->
+      <import uri="http://www.alfresco.org/model/content/1.0" prefix="cm"/>
+   </imports>
+
+   <!-- Introduction of new namespaces defined by this model -->
+   <namespaces>
+      <namespace uri="efilling-prosia.co.id" prefix="efilling"/>
+   </namespaces>
+	
+	<!--		T Y P E   D E F I N I T I O N S		-->
+	<types>
+		<type name="efilling:efillingType">
+			<title>E-Filling</title>
+			<parent>cm:content</parent>
+			<properties>
+				<property name="efilling:REF_ID">
+					<title>Ref ID</title>
+					<type>d:text</type>
+				</property>
+				<property name="efilling:BRANCH">
+					<title>Branch</title>
+					<type>d:text</type>
+				</property>
+				<property name="efilling:DOC_TYPE">
+					<title>Document Type</title>
+					<type>d:text</type>
+				</property>
+				<property name="efilling:FILE_DATE">
+					<title>File Date</title>
+					<type>d:text</type>
+				</property>
+				<property name="efilling:FILE_METADATA">
+					<title>File Metadata</title>
+					<type>d:text</type>
+				</property>
+			</properties>
+		</type>
+	</types>
+	
+</model>

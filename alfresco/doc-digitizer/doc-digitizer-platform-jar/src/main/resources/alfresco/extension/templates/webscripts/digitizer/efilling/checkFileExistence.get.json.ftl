@@ -1,0 +1,6 @@
+{
+	"data":
+	{
+		"uploaded": "${result}"
+	}
+}

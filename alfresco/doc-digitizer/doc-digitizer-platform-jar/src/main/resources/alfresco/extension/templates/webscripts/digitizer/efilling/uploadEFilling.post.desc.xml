@@ -1,0 +1,7 @@
+<webscript>
+  <shortname>File Upload</shortname>
+  <description>Upload file content and meta-data into Repository</description>
+  <url>/digitizer/efilling/uploadEFilling?metadata={metadata}</url>
+  <format default="json"/>
+  <authentication>user</authentication>
+</webscript>

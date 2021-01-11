@@ -1,0 +1,128 @@
+<!-- Share configuration related to this particular Share module extension, such as:
+     - Doclib action config
+     - Form config
+     - Aspect and Type config
+     - Advanced Search
+
+    Note. Any configuration related to the whole Share.war webapp
+           (i.e. not specific to this share extension) should be
+            placed in the environment specific config file:
+             alfresco/tomcat/shared/classes/alfresco/web-extension/share-config-custom.xml
+     -->
+<alfresco-config>
+
+    <!-- ==================================================================================================== -->
+    <!-- ###################################### BEGINS: Advance Search ###################################### -->
+    <!-- ==================================================================================================== -->
+
+    <config evaluator="string-compare" condition="AdvancedSearch">
+        <advanced-search>
+            <!-- Forms for the advanced search type list -->
+            <forms>
+                <!--
+				   The 'form' config element contains the name of the model type
+				   of the form to display.
+				   
+				   The element supports the following optional attributes:
+					  id = form id, the id of "search" will be assumed if not set
+					  label = label text to display - defaults to model type if not set
+					  labelId = I18N message id of label text to display
+					  description = description text to display
+					  descriptionId = I18N message id of description text to display
+				-->
+                <form label="E-Filling" description="Searches for all E-Filling document">efilling:efillingType</form>
+            </forms>
+        </advanced-search>
+    </config>
+
+    <config evaluator="model-type" condition="efilling:efillingType">
+        <forms>
+            <!-- Search form -->
+            <form id="search">
+                <field-visibility>
+                    <show id="cm:name" />
+                    <show id="efilling:REF_ID" />
+                    <show id="efilling:BRANCH" />
+                    <show id="efilling:DOC_TYPE" />
+                    <show id="efilling:FILE_DATE" />
+                    <show id="efilling:FILE_METADATA" />
+                </field-visibility>
+                <appearance>
+                    <field id="cm:name" label="File Name" />
+                    <field id="efilling:REF_ID" label="Ref ID"/>
+                    <field id="efilling:BRANCH" label="Branch"/>
+                    <field id="efilling:DOC_TYPE" label="Document Type"/>
+                    <field id="efilling:FILE_DATE" label="File Date"/>
+                    <field id="efilling:FILE_METADATA" label="File Metadata" />
+                </appearance>
+            </form>
+        </forms>
+    </config>
+
+    <!-- ======================================================================== -->
+    <!-- ################## BEGINS: CUSTOM CONTENT PROPERTIES ################### -->
+    <!-- ======================================================================== -->
+
+    <!-- ====================================== BEGINS DOCUMENT E-Filling ====================================== -->
+    <config evaluator="node-type" condition="efilling:efillingType">
+        <forms>
+            <form>
+                <field-visibility>
+                    <show id="cm:name" />
+                    <show id="cm:title" force="true" />
+                    <show id="cm:description" force="true" />
+                    <show id="mimetype" />
+                    <show id="cm:author" force="true" />
+                    <show id="size" for-mode="view" />
+                    <show id="cm:creator" for-mode="view" />
+                    <show id="cm:created" for-mode="view" />
+                    <show id="cm:modifier" for-mode="view" />
+                    <show id="cm:modified" for-mode="view" />
+
+                    <show id="efilling:REF_ID" />
+                    <show id="efilling:BRANCH" />
+                    <show id="efilling:DOC_TYPE" />
+                    <show id="efilling:FILE_DATE" />
+                    <show id="efilling:FILE_METADATA" />
+                </field-visibility>
+                <appearance>
+                    <set id="" appearance="" label-id="workflow.set.general" />
+                    <set id="efp" appearance="bordered-panel" label="E-Filling Document"/>
+
+                    <field id="cm:name">
+                        <control>
+                            <control-param name="maxLength">255</control-param>
+                        </control>
+                    </field>
+                    <field id="cm:title">
+                        <control template="/org/alfresco/components/form/controls/textfield.ftl" />
+                    </field>
+                    <field id="cm:description">
+                        <control>
+                            <control-param name="activateLinks">true</control-param>
+                        </control>
+                    </field>
+                    <field id="mimetype">
+                        <control template="/org/alfresco/components/form/controls/mimetype.ftl" />
+                    </field>
+                    <field id="size">
+                        <control template="/org/alfresco/components/form/controls/size.ftl" />
+                    </field>
+
+                    <field id="efilling:REF_ID" label="Ref ID" set="efp"/>
+                    <field id="efilling:BRANCH" label="Branch" set="efp"/>
+                    <field id="efilling:DOC_TYPE" label="Document Type" set="efp"/>
+                    <field id="efilling:FILE_DATE" label="File Date" set="efp"/>
+                    <field id="efilling:FILE_METADATA" label="File Metadata" set="efp"/>
+                </appearance>
+            </form>
+        </forms>
+    </config>
+    <!-- ====================================== ENDS DOCUMENT E-Filling ====================================== -->
+
+
+    <!-- ====================================================================== -->
+    <!-- ################## ENDS: CUSTOM CONTENT PROPERTIES ################### -->
+    <!-- ====================================================================== -->
+
+</alfresco-config>

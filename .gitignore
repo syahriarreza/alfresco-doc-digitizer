@@ -1,1 +1,4 @@
 .ignored/
+alfresco/doc-digitizer/doc-digitizer-platform-jar/target/
+alfresco/doc-digitizer/doc-digitizer-share-jar/target/
+alfresco/doc-digitizer/target/

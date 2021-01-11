@@ -1,0 +1,6 @@
+<webscript>
+  <shortname>File Upload</shortname>
+  <description>Form for uploading content and meta-data into Repository</description>
+  <url>/digitizer/efilling/uploadEFilling</url>
+  <authentication>admin</authentication>
+</webscript>

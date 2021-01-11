@@ -1,0 +1,7 @@
+<webscript>
+  <shortname>Custom Search</shortname>
+  <description>Webscript for searching document</description>
+  <url>/digitizer/efilling/searchDoc?keyword={keyword}</url>
+  <format default="json"/>
+  <authentication>user</authentication>
+</webscript>

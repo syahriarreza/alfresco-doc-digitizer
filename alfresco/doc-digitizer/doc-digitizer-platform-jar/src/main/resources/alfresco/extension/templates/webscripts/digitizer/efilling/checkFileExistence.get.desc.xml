@@ -1,0 +1,7 @@
+<webscript>
+  <shortname>Check Document Existence</shortname>
+  <description>Webscript for checking the existence of a document inside a folder</description>
+  <url>/digitizer/efilling/checkFileExistence?filePath={filePath}</url>
+  <format default="json"/>
+  <authentication>user</authentication>
+</webscript>
