@@ -7,10 +7,10 @@ database:
   username: root
   password: root
 folder:
-  dropbox: D:\GO\src\github.com\syahriarreza\alfresco-doc-digitizer\.ignored\pdf\dropbox
-  scan: D:\GO\src\github.com\syahriarreza\alfresco-doc-digitizer\.ignored\pdf\scan
-  process: D:\GO\src\github.com\syahriarreza\alfresco-doc-digitizer\.ignored\pdf\process
-  upload: D:\GO\src\github.com\syahriarreza\alfresco-doc-digitizer\.ignored\pdf\upload
+  dropbox: D:\Works\GO\src\github.com\syahriarreza\alfresco-doc-digitizer\.ignored\pdf\dropbox
+  scan: D:\Works\GO\src\github.com\syahriarreza\alfresco-doc-digitizer\.ignored\pdf\scan
+  process: D:\Works\GO\src\github.com\syahriarreza\alfresco-doc-digitizer\.ignored\pdf\process
+  upload: D:\Works\GO\src\github.com\syahriarreza\alfresco-doc-digitizer\.ignored\pdf\upload
 scheduler:
   every_x_minute: 5
   poolsize: 20

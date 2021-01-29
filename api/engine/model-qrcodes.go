@@ -10,7 +10,6 @@ import (
 type Qrcodes struct {
 	Base
 	AlfrescoPath            string
-	Metadata                string
 	AlfrescoDefaultFilename string // default name ketika di upload ke alfresco
 	IsReviewNeeded          bool
 }
